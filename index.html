@@ -78,14 +78,14 @@
         const rates = new Map()
 
         async function updateRates() {
-            const responseA = await fetch("http://api.nbp.pl/api/exchangerates/tables/A/?format=json")
+            const responseA = await fetch("https://api.nbp.pl/api/exchangerates/tables/A/?format=json")
             const dataA = await responseA.json()
             rates.set('USD', dataA[0].rates.find((rate) => rate.code === 'USD').mid)
             rates.set('JPY', dataA[0].rates.find((rate) => rate.code === 'JPY').mid)
             rates.set('EUR', dataA[0].rates.find((rate) => rate.code === 'EUR').mid)
             rates.set('TRY', dataA[0].rates.find((rate) => rate.code === 'TRY').mid)
     
-            const responseB = await fetch("http://api.nbp.pl/api/exchangerates/tables/B/?format=json")
+            const responseB = await fetch("https://api.nbp.pl/api/exchangerates/tables/B/?format=json")
             const dataB = await responseB.json()
             rates.set('RUB', dataB[0].rates.find((rate) => rate.code === 'RUB').mid)
             rates.set('GEL', dataB[0].rates.find((rate) => rate.code === 'GEL').mid)
