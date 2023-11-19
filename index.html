@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Ubuntu+Mono&display=swap');
+        * {
+            font-family: 'Ubuntu Mono', monospace;
+        }
+        body {
+            width: 100%;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #2d3436;
+        }
+        .panel {
+            width: 450px;
+            background-color: #636e72;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            gap: 10px;
+        }
+        .money {
+            border-radius: 10px;
+            padding: 10px;
+            background-color: #9ea7ac;
+            display: flex;
+            gap: 10px;
+        }
+        .flag {
+            width: 120px;
+            height: 60px;
+            border-radius: 10px;
+        }
+        input {
+            background-color: #dfe6e9;
+            border-radius: 10px;
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 30px;
+            padding: 10px;
+            color: #2d3436;
+        }
+
+        .error {
+            background-color: #ebc3c3;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+        }
+        input[type=number] {
+        -moz-appearance: textfield;
+        }
+
+        .icon {
+            color: #2d3436;
+            width: 120px;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    <script>
+        let inputs = new Map()
+        const rates = new Map()
+
+        async function updateRates() {
+            const responseA = await fetch("http://api.nbp.pl/api/exchangerates/tables/A/?format=json")
+            const dataA = await responseA.json()
+            rates.set('USD', dataA[0].rates.find((rate) => rate.code === 'USD').mid)
+            rates.set('JPY', dataA[0].rates.find((rate) => rate.code === 'JPY').mid)
+            rates.set('EUR', dataA[0].rates.find((rate) => rate.code === 'EUR').mid)
+            rates.set('TRY', dataA[0].rates.find((rate) => rate.code === 'TRY').mid)
+    
+            const responseB = await fetch("http://api.nbp.pl/api/exchangerates/tables/B/?format=json")
+            const dataB = await responseB.json()
+            rates.set('RUB', dataB[0].rates.find((rate) => rate.code === 'RUB').mid)
+            rates.set('GEL', dataB[0].rates.find((rate) => rate.code === 'GEL').mid)
+            rates.set('RSD', dataB[0].rates.find((rate) => rate.code === 'RSD').mid)
+
+            // console.log(rates)
+            update(1, 'USD')
+        }
+
+        window.onload = () => {
+            inputs = new Map([
+                ['USD', document.getElementById('input-USD')],
+                ['JPY', document.getElementById('input-JPY')],
+                ['EUR', document.getElementById('input-EUR')],
+                ['TRY', document.getElementById('input-TRY')],
+                ['RUB', document.getElementById('input-RUB')],
+                ['GEL', document.getElementById('input-GEL')],
+                ['RSD', document.getElementById('input-RSD')],
+            ])
+            updateRates()
+        }
+
+        function update(value, rateKey) {
+            rates.forEach((val, key) => {
+                if (rateKey !== key) {
+                    inputs.get(key).value = (value * rates.get(rateKey) / rates.get(key)).toFixed(2)
+                }
+            })
+        }
+
+        function change(input, rateKey) {
+            const value = parseFloat(input.value)
+            if (isNaN(value)) {
+                input.classList.add("error")
+            } else {
+                input.classList.remove("error")
+                update(value, rateKey)
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="panel">
+        <div class="money">
+            <img class="flag" alt="United States" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
+            <div class="icon">$</div>
+            <input id="input-USD" type="number" value="1" oninput="change(this, 'USD')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Russia" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RU.svg"/>
+            <div class="icon">₽</div>
+            <input id="input-RUB" type="number" value="1" oninput="change(this, 'RUB')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Nederland" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/NL.svg"/>
+            <div class="icon">€</div>
+            <input id="input-EUR" type="number" value="1" oninput="change(this, 'EUR')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Georgia" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/GE.svg"/>
+            <div class="icon">₾</div>
+            <input id="input-GEL" type="number" value="1" oninput="change(this, 'GEL')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Serbia" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RS.svg"/>
+            <div class="icon">DIN</div>
+            <input id="input-RSD" type="number" value="1" oninput="change(this, 'RSD')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Japan" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/JP.svg"/>
+            <div class="icon">¥</div>
+            <input id="input-JPY" type="number" value="1" oninput="change(this, 'JPY')"/>
+        </div>
+        <div class="money">
+            <img class="flag" alt="Turkey" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/TR.svg"/>
+            <div class="icon">₺</div>
+            <input id="input-TRY" type="number" value="1" oninput="change(this, 'TRY')"/>
+        </div>
+    </div>
+</body>
+</html>
