@@ -166,7 +166,7 @@
         function update(value, rateKey) {
             rates.forEach((val, key) => {
                 if (rateKey !== key) {
-                    inputs.get(key).value = (value * rates.get(rateKey) / rates.get(key)).toFixed(2)
+                    inputs.get(key).value = (value * rates.get(rateKey) / rates.get(key)).toFixed(4)
                 }
             })
         }
