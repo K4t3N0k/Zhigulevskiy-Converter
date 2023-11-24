@@ -25,12 +25,8 @@
         }
         .panel {
             width: min(450px, 100%);
-            background-color: #636e72;
-            border-radius: 10px;
             display: flex;
             flex-direction: column;
-            padding: 10px;
-            gap: 10px;
         }
         .money {
             border-radius: 10px;
@@ -75,6 +71,60 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            user-select: none;
+        }
+
+        .potato-icon {
+            color: #2d3436;
+            width: 120px;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .tab-bar {
+            height: 60px;
+            display: flex;
+            flex-direction: row;
+        }
+
+        .tab-button {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            background-color: color-mix(in srgb, #636e72 50%, #2d3436);
+            border: none;
+        }
+
+        .tab-button-active {
+            background-color: #636e72;
+        }
+
+        .tab-page {
+            padding: 10px;
+            gap: 10px;
+            display: flex;
+            flex-direction: column;
+            background-color: #636e72;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .potato-index {
+            width: 100%;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: right;
+            background-color: #dfe6e9;
+            padding: 10px;
+            border-radius: 10px;
         }
     </style>
     <script>
@@ -110,6 +160,7 @@
                 ['RSD', document.getElementById('input-RSD')],
             ])
             updateRates()
+            setPage('money')
         }
 
         function update(value, rateKey) {
@@ -129,44 +180,151 @@
                 update(value, rateKey)
             }
         }
+
+        function setPage(name) {
+            const buttons = new Map([
+                ['money', document.getElementById('tab-button-money')],
+                ['potato', document.getElementById('tab-button-potato')],
+            ])
+            const pages = new Map([
+                ['money', document.getElementById('tab-page-money')],
+                ['potato', document.getElementById('tab-page-potato')],
+            ])
+            buttons.forEach((button, key) => {
+                if (key === name) {
+                    button.classList.add('tab-button-active')
+                } else {
+                    button.classList.remove('tab-button-active')
+                }
+            })
+            pages.forEach((page, key) => {
+                if (key === name) {
+                    page.style.display = 'flex'
+                } else {
+                    page.style.display = 'none'
+                }
+            })
+        }
+
+        function selectPotatoMoney(rateKey) {
+            const icon = new Map([
+                ['USD', '$'],
+                ['JPY', '¥'],
+                ['EUR', '€'],
+                ['TRY', '₺'],
+                ['RUB', '₽'],
+                ['GEL', '₾'],
+                ['RSD', 'DIN'],
+            ])
+            const moneyIcons = Array.from(document.getElementsByClassName('potato-icon'))
+            moneyIcons.forEach((el) => {
+                el.innerText = icon.get(rateKey)
+            })
+
+            const potatosPrice = new Map([
+                ['USD', 0.0], // 
+                ['JPY', 330.00 / 105 * 165], // 105g https://wolt.com/en/jpn/tokyo/venue/inageya-suginamisakurajosui
+                ['EUR',   1.89], // https://www.jumbo.com/producten/pringles-original-chips-165g-181979STK
+                ['TRY',  55.10], // https://getir.com/en/category/snacks-yboprW2YpZ/
+                ['RUB', 240.00], // https://megamarket.ru/catalog/details/chipsy-pringles-originalnye-165-g-100059761588/
+                ['GEL',   7.95], // https://wolt.com/en/geo/batumi/venue/carrefour-batumi/items/itemcategory-88
+                ['RSD', 453.99], // https://wolt.com/en/srb/belgrade/venue/maxi-kralja-milana/items/grickalice-28
+            ])
+
+            const potatos = new Map([
+                ['USD', document.getElementById('potato-USD')],
+                ['JPY', document.getElementById('potato-JPY')],
+                ['EUR', document.getElementById('potato-EUR')],
+                ['TRY', document.getElementById('potato-TRY')],
+                ['RUB', document.getElementById('potato-RUB')],
+                ['GEL', document.getElementById('potato-GEL')],
+                ['RSD', document.getElementById('potato-RSD')],
+            ])
+            potatos.forEach((val, key) => {
+                val.innerText = (potatosPrice.get(key) * rates.get(key) / rates.get(rateKey)).toFixed(2)
+            })
+        }
     </script>
 </head>
 <body>
     <div class="panel">
-        <div class="money">
-            <img class="flag" alt="United States" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
-            <div class="icon">$</div>
-            <input id="input-USD" type="number" value="1" oninput="change(this, 'USD')"/>
+        <div class="tab-bar">
+            <button id="tab-button-money" class="tab-button" onclick="setPage('money')">💵</button>
+            <button id="tab-button-potato" class="tab-button" onclick="setPage('potato')">🥔</button>
         </div>
-        <div class="money">
-            <img class="flag" alt="Russia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RU.svg"/>
-            <div class="icon">₽</div>
-            <input id="input-RUB" type="number" value="1" oninput="change(this, 'RUB')"/>
+        <div id="tab-page-money" class="tab-page">
+            <div class="money">
+                <img class="flag" alt="United States" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
+                <div class="icon">$</div>
+                <input id="input-USD" type="number" value="1" oninput="change(this, 'USD')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Russia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RU.svg"/>
+                <div class="icon">₽</div>
+                <input id="input-RUB" type="number" value="1" oninput="change(this, 'RUB')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Nederland" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/NL.svg"/>
+                <div class="icon">€</div>
+                <input id="input-EUR" type="number" value="1" oninput="change(this, 'EUR')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Georgia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/GE.svg"/>
+                <div class="icon">₾</div>
+                <input id="input-GEL" type="number" value="1" oninput="change(this, 'GEL')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Serbia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RS.svg"/>
+                <div class="icon">DIN</div>
+                <input id="input-RSD" type="number" value="1" oninput="change(this, 'RSD')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Japan" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/JP.svg"/>
+                <div class="icon">¥</div>
+                <input id="input-JPY" type="number" value="1" oninput="change(this, 'JPY')"/>
+            </div>
+            <div class="money">
+                <img class="flag" alt="Turkey" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/TR.svg"/>
+                <div class="icon">₺</div>
+                <input id="input-TRY" type="number" value="1" oninput="change(this, 'TRY')"/>
+            </div>
         </div>
-        <div class="money">
-            <img class="flag" alt="Nederland" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/NL.svg"/>
-            <div class="icon">€</div>
-            <input id="input-EUR" type="number" value="1" oninput="change(this, 'EUR')"/>
-        </div>
-        <div class="money">
-            <img class="flag" alt="Georgia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/GE.svg"/>
-            <div class="icon">₾</div>
-            <input id="input-GEL" type="number" value="1" oninput="change(this, 'GEL')"/>
-        </div>
-        <div class="money">
-            <img class="flag" alt="Serbia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RS.svg"/>
-            <div class="icon">DIN</div>
-            <input id="input-RSD" type="number" value="1" oninput="change(this, 'RSD')"/>
-        </div>
-        <div class="money">
-            <img class="flag" alt="Japan" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/JP.svg"/>
-            <div class="icon">¥</div>
-            <input id="input-JPY" type="number" value="1" oninput="change(this, 'JPY')"/>
-        </div>
-        <div class="money">
-            <img class="flag" alt="Turkey" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/TR.svg"/>
-            <div class="icon">₺</div>
-            <input id="input-TRY" type="number" value="1" oninput="change(this, 'TRY')"/>
+        <div id="tab-page-potato" class="tab-page">
+            <div class="money" onclick="selectPotatoMoney('USD')">
+                <img class="flag" alt="United States" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/US.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-USD" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('RUB')">
+                <img class="flag" alt="Russia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RU.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-RUB" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('EUR')">
+                <img class="flag" alt="Nederland" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/NL.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-EUR" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('GEL')">
+                <img class="flag" alt="Georgia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/GE.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-GEL" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('RSD')">
+                <img class="flag" alt="Serbia" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/RS.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-RSD" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('JPY')">
+                <img class="flag" alt="Japan" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/JP.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-JPY" class="potato-index">1.00</div>
+            </div>
+            <div class="money" onclick="selectPotatoMoney('TRY')">
+                <img class="flag" alt="Turkey" draggable="false" src="http://purecatamphetamine.github.io/country-flag-icons/3x2/TR.svg"/>
+                <div class="potato-icon">$</div>
+                <div id="potato-TRY" class="potato-index">1.00</div>
+            </div>
         </div>
     </div>
 </body>
